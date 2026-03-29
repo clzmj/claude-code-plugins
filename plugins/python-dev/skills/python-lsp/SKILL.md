@@ -19,25 +19,13 @@ This plugin comes with configurations for:
 - **Type**: Fast linter and formatter
 - **Speed**: ⚡⚡⚡ Extremely fast
 - **Best for**: Projects wanting fast linting feedback, modern Python codebases
-- **Setup**: Runs via `uvx ruff server`
+- **Setup**: Runs via `uvx ruff server` with bundled `ruff.toml` configuration
 
 ### **ty** (Type checking)
 - **Type**: Lightweight type checker
 - **Speed**: ⚡⚡⚡ Very fast
 - **Best for**: Quick type-aware development
-- **Setup**: Runs via `uvx ty server`
-
-### **pyright** (Static type checker)
-- **Type**: Comprehensive type checker
-- **Speed**: ⚡⚡ Moderate
-- **Best for**: Rigorous type checking, detailed diagnostics
-- **Setup**: Requires `pyright` installation
-
-### **pylance** (Commercial LSP)
-- **Type**: Premium type checker (based on Pyright)
-- **Speed**: ⚡ Slower (more thorough)
-- **Best for**: Maximum features and AI-powered refactoring
-- **Setup**: Requires `pylance` installation
+- **Setup**: Runs via `uvx ty server`, auto-discovers `.venv`
 
 ## Enabling LSP Servers
 
@@ -51,115 +39,78 @@ The plugin automatically provides LSP configurations. To use them:
 2. **Enable it**:
    - The plugin activates LSP servers automatically
 
-3. **Install language server binaries** (as needed):
+3. **Install language server binaries**:
    ```bash
-   # For ruff and ty (uses uvx, no install needed):
-   # They work automatically
+   # ruff and ty use uvx, so no separate installation needed
+   # They're run automatically via: uvx ruff server and uvx ty server
 
-   # For pyright:
-   npm install -g pyright
-   # or
-   pip install pyright
-
-   # For pylance:
-   # Install VS Code extension or use pip
-   pip install pylance
+   # Just ensure uv is installed:
+   curl -LsSf https://astral.sh/uv/install.sh | sh
    ```
 
-## Choosing Your LSP Server
+## Your LSP Setup: ruff + ty
 
-### Decision factors:
+This plugin is configured with **ruff** (linting) and **ty** (type checking) — a fast, modern Python LSP combination.
 
-**Speed needed?**
-- Ruff or ty → Very fast, instant feedback
-- Pyright → Good balance
-- Pylance → Full-featured but slower
+**ruff** provides:
+- Ultra-fast linting (10-100x faster than traditional linters)
+- Comprehensive rules (400+)
+- Code formatting
+- Security checks
 
-**Type checking required?**
-- Want rigorous checking → Pyright or Pylance
-- Want basic type hints → Ty
-- Don't need type checking → Ruff (linting only)
+**ty** provides:
+- Quick type-aware development
+- Minimal startup overhead
+- Type hint validation
+- Code completions based on types
 
-**Project type?**
-- Application → Pyright or Pylance for reliability
-- Library → Pyright (catches compatibility issues)
-- Scripts → Ruff (fast, practical)
-- Data science → Pylance (best with scientific packages)
-
-**Team preference?**
-- Minimal setup → Ruff (works out of box with uvx)
-- Maximum features → Pylance
-- Balance → Pyright
+Both run via `uvx`, so they're always up-to-date with no system-wide installation needed.
 
 ## Customizing LSP Configuration
 
-While this plugin provides sensible defaults, you can customize LSP settings in your editor/Claude Code settings.
+The plugin provides ruff and ty with bundled configurations. Both are enabled by default.
 
-### Editor-specific configuration
-
-**Claude Code** (`opencode.jsonc` or settings.json):
+To customize in Claude Code (`opencode.jsonc` or settings.json):
 ```json
 {
   "lsp": {
     "ruff": {
-      "enabled": true,
-      "args": ["server"]
+      "enabled": true
     },
-    "pyright": {
-      "enabled": true,
-      "initializationOptions": {
-        "typeCheckingMode": "strict"
-      }
+    "ty": {
+      "enabled": true
     }
   }
 }
 ```
 
-**VS Code** (`.vscode/settings.json`):
-```json
-{
-  "[python]": {
-    "defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
-    "linting.enabled": true,
-    "linting.pylintEnabled": false
-  }
-}
-```
+To override ruff configuration, create a `ruff.toml` in your project root. The plugin's bundled `ruff.toml` will be used if no project-specific one exists.
 
 ## Troubleshooting LSP
 
 ### "LSP server not starting"
-1. Check that the binary is installed:
-   ```bash
-   which ruff
-   which pyright
-   ```
-
-2. For uvx-based servers (ruff, ty), ensure uv is installed:
+1. Ensure uv is installed:
    ```bash
    uv --version
    ```
 
-3. Restart your editor/Claude Code
+2. Verify uvx works:
+   ```bash
+   uvx --version
+   uvx ruff --version
+   uvx ty --version
+   ```
 
-### "Type checking too strict/lenient"
-Adjust LSP initialization options or use `py.typed` marker:
-```toml
-# pyproject.toml for Pyright strictness
-[tool.pyright]
-typeCheckingMode = "strict"  # or "basic", "standard"
-```
+3. Restart Claude Code or reload the plugin
 
-### "LSP conflicts with formatter"
-Configure only one formatter:
-```json
-{
-  "lsp": {
-    "ruff": { "enabled": true },
-    "black": { "enabled": false }
-  }
-}
-```
+### "Ruff and ty not detecting issues"
+1. Check that the project has a `.venv` or Python installation
+2. Verify `uv sync` was run to install dependencies
+3. Try: `uv run ruff check .` and `uv run ty` manually to test
+
+### "Want stricter or more lenient checking"
+- **Ruff**: Modify `ruff.toml` in your project root
+- **Ty**: Configure in `ty.toml` if needed
 
 ## Supporting Documentation
 
