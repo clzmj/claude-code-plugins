@@ -50,78 +50,15 @@ jobs:
             fi
           done
 
-      - name: Check version bump on code changes
-        if: github.event_name == 'pull_request'
-        run: |
-          echo "📋 Checking if versions were bumped for code changes..."
-
-          plugins=("rdi" "python-dev")
-
-          for plugin in "${plugins[@]}"; do
-            plugin_dir="plugins/$plugin"
-
-            # Check if plugin code changed (excluding version files)
-            code_changed=$(git diff origin/main...HEAD -- "$plugin_dir" | \
-              grep -v '.version' | \
-              grep -v '.claude-plugin/plugin.json' | \
-              grep -v '\.claude-plugin/marketplace.json' | \
-              grep '^+\|^-' | \
-              wc -l)
-
-            if [ "$code_changed" -gt 0 ]; then
-              # Check if version was bumped
-              version_changed=$(git diff origin/main...HEAD -- \
-                "plugins/$plugin/.claude-plugin/plugin.json" \
-                ".claude-plugin/marketplace.json" | \
-                grep -c '"version"' || true)
-
-              if [ "$version_changed" -eq 0 ]; then
-                echo "❌ Code changed in $plugin but version not bumped!"
-                echo "   ✓ Update both:"
-                echo "     - plugins/$plugin/.claude-plugin/plugin.json"
-                echo "     - .claude-plugin/marketplace.json"
-                exit 1
-              else
-                echo "✓ $plugin version was bumped"
-              fi
-            else
-              echo "ℹ️  No code changes in $plugin"
-            fi
-          done
-
-      - name: Validate git tags on main
-        if: github.ref == 'refs/heads/main'
-        run: |
-          echo "🏷️  Validating git tags..."
-
-          plugins=("rdi" "python-dev")
-
-          for plugin in "${plugins[@]}"; do
-            plugin_json="plugins/$plugin/.claude-plugin/plugin.json"
-
-            if [ -f "$plugin_json" ]; then
-              version=$(jq -r '.version' "$plugin_json")
-              tag="$plugin@$version"
-
-              # Check if tag exists
-              if git rev-parse --verify "$tag" >/dev/null 2>&1; then
-                echo "✓ Tag exists: $tag"
-              else
-                echo "⚠️  Tag missing: $tag (will be created by release job)"
-              fi
-            fi
-          done
 
       - name: Summary
         run: |
           echo ""
           echo "✅ Version validation passed!"
           echo ""
-          echo "📌 Versioning guidelines:"
-          echo "  - PATCH: bug fixes, docs, config changes"
-          echo "  - MINOR: new features, new agents/skills"
-          echo "  - MAJOR: breaking changes"
-          echo ""
-          echo "📝 Always update both:"
+          echo "📌 Versions must match between:"
           echo "  - plugins/PLUGIN/.claude-plugin/plugin.json"
           echo "  - .claude-plugin/marketplace.json"
+          echo ""
+          echo "ℹ️  Version bumps are handled by: .github/workflows/release.yml"
+          echo "    Trigger with: workflow_dispatch on GitHub Actions"

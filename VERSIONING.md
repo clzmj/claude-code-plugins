@@ -1,6 +1,6 @@
 # Versioning Strategy
 
-This marketplace uses **Semantic Versioning** with automated GitHub Actions guardrails to ensure consistency.
+This marketplace uses **Semantic Versioning with manual releases**. Versions are determined exclusively by git tags, not by version numbers in code files.
 
 ## Semantic Versioning
 
@@ -12,271 +12,141 @@ MAJOR.MINOR.PATCH
 
 - **MAJOR** (e.g., 2.0.0): Breaking changes, removed features
 - **MINOR** (e.g., 1.1.0): New features, new agents/skills (backward compatible)
-- **PATCH** (e.g., 1.0.1): Bug fixes, documentation, config tweaks
+- **PATCH** (e.g., 1.0.1): Bug fixes, documentation, configuration tweaks
 
-## When to Bump Each
+## Source of Truth: Git Tags
 
-### PATCH (1.0.1)
-- Bug fixes
-- Documentation updates
-- Configuration refinements
-- Typo corrections
-- Security patches
+The **canonical version is recorded in git tags**, not in code files. File versions are always synchronized via the release workflow.
 
-**Example**: Fix in `ruff.toml` configuration
+Tag format: `PLUGIN@vMAJOR.MINOR.PATCH`
 
-### MINOR (1.1.0)
-- New agents added
-- New skills added
-- New templates or examples
-- Feature additions
-
-**Example**: Add new `python-lsp-migrator` agent
-
-### MAJOR (2.0.0)
-- Removed agents or skills
-- Breaking changes to agent/skill interface
-- Removed plugin components
-- Incompatible plugin.json structure changes
-
-**Example**: Restructure agent interface format
+Examples:
+- `python-dev@v1.0.0` — canonical tag for python-dev version 1.0.0
+- `python-dev@v1.0` — floating alias (latest 1.0.x)
+- `python-dev@v1` — floating alias (latest 1.x.x)
+- `python-dev@latest` — floating alias (latest version overall)
 
 ## How to Release
 
-### 1. Make your code changes
+### 1. Go to GitHub Actions
 
-```bash
-# Edit plugin files
-vim plugins/python-dev/skills/uv/uv-workflows.md
-git add plugins/python-dev/
-```
+In your repository, navigate to: **Actions → Release Plugin**
 
-### 2. Bump version in TWO places
+### 2. Click "Run workflow"
 
-**File 1**: `plugins/PLUGIN/.claude-plugin/plugin.json`
-```json
-{
-  "name": "python-dev",
-  "version": "1.0.1"
-}
-```
+Fill in the inputs:
+- **Plugin**: Choose `rdi` or `python-dev`
+- **Bump**: Choose `patch`, `minor`, or `major`
 
-**File 2**: `.claude-plugin/marketplace.json`
-```json
-{
-  "plugins": [
-    {
-      "name": "python-dev",
-      "version": "1.0.1"
-    }
-  ]
-}
-```
+### 3. The workflow automatically:
 
-⚠️ **Both must match or CI will fail!**
+1. Scans existing git tags for that plugin
+2. Computes the new version
+3. Updates `plugins/PLUGIN/.claude-plugin/plugin.json`
+4. Updates `.claude-plugin/marketplace.json`
+5. Creates a commit with message: `chore: release PLUGIN vX.Y.Z`
+6. Pushes the commit to main
+7. Creates the canonical tag (e.g., `python-dev@v1.0.1`)
+8. Creates and force-pushes alias tags
 
-### 3. Commit with version bump message
+### Done!
 
-```bash
-git add plugins/python-dev/.claude-plugin/plugin.json
-git add .claude-plugin/marketplace.json
-
-git commit -m "chore: bump python-dev to 1.0.1
-
-- Fix ruff configuration rule
-- Update LSP documentation"
-```
-
-### 4. Push to main
-
-```bash
-git push origin main
-```
-
-**GitHub Actions will automatically**:
-- ✅ Validate version consistency
-- ✅ Validate semver format
-- ✅ Ensure code changes had version bumps
-- ✅ Create git tag (e.g., `python-dev@1.0.1`)
+The release is complete. Users can install the new version immediately.
 
 ## Current Versions
 
-| Plugin | Version | Git Tag |
-|--------|---------|---------|
-| `rdi` | 1.0.0 | `rdi@1.0.0` |
-| `python-dev` | 1.0.0 | `python-dev@1.0.0` |
+Query existing versions via git tags:
 
-## GitHub Actions Guardrails
+```bash
+# List all tags
+git tag -l
 
-### On Pull Requests
+# List tags for specific plugin
+git tag -l "python-dev@*"
+git tag -l "rdi@*"
 
-When you open a PR:
-1. ✅ Versions must match between `plugin.json` and `marketplace.json`
-2. ✅ Versions must follow semver format (e.g., `1.0.0`)
-3. ✅ If code changed, version must be bumped
+# Show latest version
+git describe --tags --abbrev=0 --match "python-dev@*"
+```
 
-### On Push to Main
-
-When you push to main:
-1. ✅ Same validation as PR
-2. ✅ Git tags are automatically created for new versions
-3. ✅ Tags are pushed to repository
+Current:
+- `rdi@v1.0.0`
+- `python-dev@v1.0.0`
 
 ## Examples
 
 ### Example 1: Bug Fix (PATCH)
 
-```bash
-# Current version: python-dev@1.0.0
+**Scenario**: Found a typo in ruff.toml
 
-# 1. Fix the bug
-vim plugins/python-dev/ruff.toml
-
-# 2. Bump PATCH version in both files
-# plugins/python-dev/.claude-plugin/plugin.json: 1.0.0 → 1.0.1
-# .claude-plugin/marketplace.json: 1.0.0 → 1.0.1
-
-# 3. Commit
-git commit -m "fix: update ruff rule configuration
-
-- Fix E731 lambda assignment rule
-- Improve docstring formatting"
-
-# 4. Push
-git push origin main
-
-# GitHub Actions automatically creates: python-dev@1.0.1
-```
+**Steps**:
+1. Fix the typo in `plugins/python-dev/ruff.toml`
+2. Commit and push: `git commit -m "fix: ruff rule typo" && git push`
+3. Go to GitHub Actions → Release Plugin
+4. Select: Plugin = `python-dev`, Bump = `patch`
+5. Click "Run workflow"
+6. ✅ Done! Version is now `1.0.1` with tags `python-dev@v1.0.1`, `python-dev@v1.0`, `python-dev@latest`, etc.
 
 ### Example 2: New Feature (MINOR)
 
-```bash
-# Current version: python-dev@1.0.1
+**Scenario**: Added new agent to python-dev
 
-# 1. Add new agent
-touch plugins/python-dev/agents/python-lsp-migrator.md
-
-# 2. Bump MINOR version in both files
-# plugins/python-dev/.claude-plugin/plugin.json: 1.0.1 → 1.1.0
-# .claude-plugin/marketplace.json: 1.0.1 → 1.1.0
-
-# 3. Commit
-git commit -m "feat: add python-lsp-migrator agent
-
-- New agent for migrating LSP configurations
-- Includes templates for ruff and ty"
-
-# 4. Push
-git push origin main
-
-# GitHub Actions automatically creates: python-dev@1.1.0
-```
+**Steps**:
+1. Add agent file `plugins/python-dev/agents/new-agent.md`
+2. Commit and push: `git commit -m "feat: add new-agent" && git push`
+3. Go to GitHub Actions → Release Plugin
+4. Select: Plugin = `python-dev`, Bump = `minor`
+5. Click "Run workflow"
+6. ✅ Done! Version is now `1.1.0`
 
 ### Example 3: Breaking Change (MAJOR)
 
-```bash
-# Current version: rdi@1.0.0
+**Scenario**: Restructured agent interface
 
-# 1. Restructure agent interface
-# (significant changes to agents/)
+**Steps**:
+1. Restructure `plugins/rdi/agents/*`
+2. Update agent format documentation
+3. Commit and push
+4. Go to GitHub Actions → Release Plugin
+5. Select: Plugin = `rdi`, Bump = `major`
+6. Click "Run workflow"
+7. ✅ Done! Version is now `2.0.0` (breaking change)
 
-# 2. Bump MAJOR version in both files
-# plugins/rdi/.claude-plugin/plugin.json: 1.0.0 → 2.0.0
-# .claude-plugin/marketplace.json: 1.0.0 → 2.0.0
+## FAQ
 
-# 3. Commit
-git commit -m "BREAKING: restructure agent interface
+### Q: Do I need to manually update version numbers in code?
 
-Agent format changed from markdown to YAML.
-See MIGRATION.md for upgrade guide."
+**A**: No. Never manually change versions in `plugin.json` or `marketplace.json`. The release workflow handles this automatically.
 
-# 4. Push
-git push origin main
+### Q: What if I committed code but didn't want to release yet?
 
-# GitHub Actions automatically creates: rdi@2.0.0
-```
+**A**: That's fine! Commits to main don't automatically release. Only trigger the release workflow when you're ready to bump the version and create a tag.
 
-## Checking Current Versions
+### Q: Can I release multiple plugins at once?
 
-### List all tags
+**A**: No, release one plugin at a time via the release workflow. Each plugin has independent versioning.
 
-```bash
-git tag -l
-```
+### Q: What if the version computation is wrong?
 
-### List tags for specific plugin
+**A**: The workflow scans all existing tags matching `PLUGIN@v*.*.*` and bumps the highest one. If something goes wrong, delete the incorrect tag with `git push origin --delete PLUGIN@vX.Y.Z` and re-run the workflow.
 
-```bash
-git tag -l "python-dev@*"
-git tag -l "rdi@*"
-```
+### Q: How do I revert a release?
 
-### View tag details
+**A**: 1. Delete the bad tag: `git push origin --delete PLUGIN@vX.Y.Z`
+2. Optionally delete alias tags too
+3. Reset the version files to the previous version
+4. Commit the reset
+5. Re-run release workflow if needed
 
-```bash
-git show python-dev@1.0.1
-```
+## Glossary
 
-## If Something Goes Wrong
+- **Canonical tag**: The precise version tag (e.g., `python-dev@v1.0.1`)
+- **Alias tag**: Floating pointer that moves with each release (e.g., `python-dev@latest`)
+- **Semver**: Semantic Versioning (X.Y.Z format)
+- **Self-hosted runner**: GitHub Actions runner on your infrastructure
 
-### Version mismatch error
+## See Also
 
-**Error**: `Version mismatch for python-dev!`
-
-**Fix**: Ensure both files have same version:
-```bash
-# Check current versions
-jq '.version' plugins/python-dev/.claude-plugin/plugin.json
-jq '.plugins[] | select(.name=="python-dev") | .version' .claude-plugin/marketplace.json
-
-# Update the one that's out of sync
-```
-
-### Semver format error
-
-**Error**: `Invalid semver format for python-dev: 1.0`
-
-**Fix**: Use MAJOR.MINOR.PATCH format:
-```bash
-# Wrong:  1.0, 1, 1.0.0.1
-# Right:  1.0.0, 1.0.1, 2.0.0
-```
-
-### Code changed but version not bumped
-
-**Error**: `Code changed in python-dev but version not bumped!`
-
-**Fix**: Update version in both files before pushing:
-```bash
-# Update .claude-plugin/plugin.json version
-# Update .claude-plugin/marketplace.json version
-git add . && git commit --amend --no-edit
-git push origin main --force-with-lease
-```
-
-## Best Practices
-
-1. **Bump versions with code changes** - Don't separate version bumps into different commits
-2. **Keep both locations in sync** - Always update plugin.json AND marketplace.json
-3. **Use meaningful commit messages** - Include what changed and why
-4. **One version per release** - Don't bump twice in one PR
-5. **Increment correctly** - Follow semver rules consistently
-6. **Document breaking changes** - MAJOR versions need migration guidance
-
-## Version Bump Checklist
-
-- [ ] Code changes are complete and tested
-- [ ] Determined version type (MAJOR, MINOR, PATCH)
-- [ ] Updated `plugins/PLUGIN/.claude-plugin/plugin.json`
-- [ ] Updated `.claude-plugin/marketplace.json`
-- [ ] Versions match between both files
-- [ ] Committed with descriptive message
-- [ ] Pushed to main
-- [ ] GitHub Actions passed validation
-- [ ] Git tag was created automatically
-
-## Resources
-
-- [Semantic Versioning](https://semver.org/)
-- [Conventional Commits](https://www.conventionalcommits.org/)
-- GitHub Actions workflows in `.github/workflows/`
+- `.github/workflows/release.yml` — The release workflow
+- `.github/workflows/version-validation.yml` — Consistency validation
+- `scripts/compute_plugin_version.py` — Version computation script
