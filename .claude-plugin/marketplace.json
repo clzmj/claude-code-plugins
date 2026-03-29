@@ -14,14 +14,24 @@
       "name": "rdi",
       "source": "./plugins/rdi",
       "description": "A systematic workflow plugin that guides Claude through research, design, and implementation phases for code changes. Ensures thorough understanding, careful planning, and verified implementation of complex features.",
-      "version": "1.0.0",
+      "version": "0.0.1",
       "author": {
         "name": "Carlos Lezama",
         "email": "carlos@carrots.sh"
       },
       "license": "Apache-2.0",
-      "keywords": ["workflow", "research", "design", "implementation", "development", "systematic"],
-      "tags": ["development", "workflow"],
+      "keywords": [
+        "workflow",
+        "research",
+        "design",
+        "implementation",
+        "development",
+        "systematic"
+      ],
+      "tags": [
+        "development",
+        "workflow"
+      ],
       "category": "productivity"
     },
     {
@@ -34,8 +44,21 @@
         "email": "carlos@carrots.sh"
       },
       "license": "Apache-2.0",
-      "keywords": ["python", "lsp", "uv", "package-management", "type-checking", "linting", "development"],
-      "tags": ["development", "python", "lsp", "package-management"],
+      "keywords": [
+        "python",
+        "lsp",
+        "uv",
+        "package-management",
+        "type-checking",
+        "linting",
+        "development"
+      ],
+      "tags": [
+        "development",
+        "python",
+        "lsp",
+        "package-management"
+      ],
       "category": "development"
     }
   ]
