@@ -70,7 +70,7 @@ Both run via `uvx`, so they're always up-to-date with no system-wide installatio
 
 The plugin provides ruff and ty with bundled configurations. Both are enabled by default.
 
-To customize in Claude Code (`opencode.jsonc` or settings.json):
+To customize in Claude Code (`~/.claude/settings.json`):
 ```json
 {
   "lsp": {

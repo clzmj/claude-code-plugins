@@ -151,7 +151,7 @@ docker build -t my-app .
 ```
 
 ### Configure LSP for your editor
-The plugin provides LSP configs for Claude Code. Configure LSP tools in `opencode.jsonc`:
+The plugin provides LSP configs for Claude Code. Configure LSP tools in `~/.claude/settings.json` or project `.claude/settings.json`:
 ```json
 {
   "lsp": {
@@ -163,7 +163,7 @@ The plugin provides LSP configs for Claude Code. Configure LSP tools in `opencod
 
 ## Requirements
 
-- Claude Code (or opencode.jsonc editor)
+- Claude Code
 - Python 3.10+ (for development)
 - uv (installed separately or via `curl -LsSf https://astral.sh/uv/install.sh | sh`)
 
