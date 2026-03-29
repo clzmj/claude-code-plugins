@@ -1,6 +1,6 @@
 {
   "name": "rdi",
-  "version": "0.0.2",
+  "version": "1.0.0",
   "description": "A systematic workflow plugin that guides Claude through research, design, and implementation phases for code changes",
   "author": {
     "name": "Carlos Lezama",

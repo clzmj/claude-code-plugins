@@ -14,7 +14,7 @@
       "name": "rdi",
       "source": "./plugins/rdi",
       "description": "A systematic workflow plugin that guides Claude through research, design, and implementation phases for code changes. Ensures thorough understanding, careful planning, and verified implementation of complex features.",
-      "version": "0.0.2",
+      "version": "1.0.0",
       "author": {
         "name": "Carlos Lezama",
         "email": "carlos@carrots.sh"
