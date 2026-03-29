@@ -38,7 +38,7 @@
       "name": "python-dev",
       "source": "./plugins/python-dev",
       "description": "Complete Python development environment with LSP code intelligence (ruff, ty, pyright, pylance) and uv package management. Includes project analysis, migration planning, dependency resolution agents, and comprehensive documentation.",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "author": {
         "name": "Carlos Lezama",
         "email": "carlos@carrots.sh"
