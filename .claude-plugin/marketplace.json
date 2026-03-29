@@ -1,9 +1,9 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
-  "name": "lezcodes",
+  "name": "clzmj",
   "owner": {
     "name": "Carlos Lezama",
-    "email": "carloselezamaj@gmail.com"
+    "email": "carlos@carrots.sh"
   },
   "metadata": {
     "description": "Claude Code plugins for systematic development workflows",
@@ -12,17 +12,31 @@
   "plugins": [
     {
       "name": "rdi",
-      "source": "./plugins/research-design-implement",
+      "source": "./plugins/rdi",
       "description": "A systematic workflow plugin that guides Claude through research, design, and implementation phases for code changes. Ensures thorough understanding, careful planning, and verified implementation of complex features.",
       "version": "1.0.0",
       "author": {
         "name": "Carlos Lezama",
-        "email": "carloselezamaj@gmail.com"
+        "email": "carlos@carrots.sh"
       },
       "license": "Apache-2.0",
       "keywords": ["workflow", "research", "design", "implementation", "development", "systematic"],
       "tags": ["development", "workflow"],
       "category": "productivity"
+    },
+    {
+      "name": "python-dev",
+      "source": "./plugins/python-dev",
+      "description": "Complete Python development environment with LSP code intelligence (ruff, ty, pyright, pylance) and uv package management. Includes project analysis, migration planning, dependency resolution agents, and comprehensive documentation.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Carlos Lezama",
+        "email": "carlos@carrots.sh"
+      },
+      "license": "Apache-2.0",
+      "keywords": ["python", "lsp", "uv", "package-management", "type-checking", "linting", "development"],
+      "tags": ["development", "python", "lsp", "package-management"],
+      "category": "development"
     }
   ]
 }

@@ -18,7 +18,7 @@ A systematic workflow plugin that guides Claude through three structured phases 
 - Features requiring architectural decisions
 - Tasks needing careful planning
 
-**Documentation:** [plugins/research-design-implement/README.md](plugins/research-design-implement/README.md)
+**Documentation:** [plugins/rdi/README.md](plugins/rdi/README.md)
 
 ## Installation
 
@@ -27,7 +27,7 @@ A systematic workflow plugin that guides Claude through three structured phases 
 Install this marketplace directly from GitHub:
 
 ```bash
-/plugin marketplace add lezcodes/claude-code-plugins
+/plugin marketplace add clzmj/claude-code-plugins
 ```
 
 ### Install Individual Plugins
@@ -35,7 +35,7 @@ Install this marketplace directly from GitHub:
 Once the marketplace is added, install specific plugins:
 
 ```bash
-/plugin install rdi@lezcodes
+/plugin install rdi@clzmj
 ```
 
 ## Plugin Structure
@@ -45,7 +45,7 @@ claude-code-plugins/
 ├── .claude-plugin/
 │   └── marketplace.json          # Marketplace configuration
 ├── plugins/
-│   └── research-design-implement/   # RDI workflow plugin
+│   └── rdi/                         # RDI workflow plugin
 │       ├── .claude-plugin/
 │       │   └── plugin.json       # Plugin manifest
 │       ├── commands/
@@ -119,7 +119,7 @@ Apache License 2.0 - See [LICENSE](LICENSE) file for details
 ## Author
 
 **Carlos Lezama**
-- Email: carloselezamaj@gmail.com
+- Email: carlos@carrots.sh
 
 ## Support
 

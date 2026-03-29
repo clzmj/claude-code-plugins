@@ -61,8 +61,8 @@ Directory structure created:
 Add the marketplace and install the plugin:
 
 ```bash
-/plugin marketplace add lezcodes/claude-code-plugins
-/plugin install rdi@lezcodes
+/plugin marketplace add clzmj/claude-code-plugins
+/plugin install rdi@clzmj
 ```
 
 ### Manual Installation
@@ -525,7 +525,7 @@ Apache-2.0
 
 ## Author
 
-Carlos Lezama (carloselezamaj@gmail.com)
+Carlos Lezama (carlos@carrots.sh)
 
 ## Support
 

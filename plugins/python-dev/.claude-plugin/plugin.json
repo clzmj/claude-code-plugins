@@ -1,0 +1,29 @@
+{
+  "name": "python-dev",
+  "version": "1.0.0",
+  "description": "Complete Python development environment with LSP code intelligence and uv package management",
+  "author": {
+    "name": "Carlos Lezama",
+    "email": "carlos@carrots.sh"
+  },
+  "license": "Apache-2.0",
+  "repository": "https://github.com/clzmj/claude-code-plugins",
+  "keywords": [
+    "python",
+    "lsp",
+    "uv",
+    "package-management",
+    "development"
+  ],
+  "agents": [
+    "./agents/uv-project-analyzer.md",
+    "./agents/uv-migration-planner.md",
+    "./agents/python-dep-resolver.md",
+    "./agents/lsp-config-advisor.md"
+  ],
+  "skills": [
+    "./skills/uv",
+    "./skills/python-lsp"
+  ],
+  "lspServers": "./.lsp.json"
+}

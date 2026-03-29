@@ -4,10 +4,10 @@
   "description": "A systematic workflow plugin that guides Claude through research, design, and implementation phases for code changes",
   "author": {
     "name": "Carlos Lezama",
-    "email": "carloselezamaj@gmail.com"
+    "email": "carlos@carrots.sh"
   },
   "license": "Apache-2.0",
-  "repository": "https://github.com/lezcodes/claude-code-plugins",
+  "repository": "https://github.com/clzmj/claude-code-plugins",
   "commands": [
     "./commands/rpi.md",
     "./commands/research.md",
