@@ -1,6 +1,6 @@
 {
   "name": "python-dev",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Complete Python development environment with LSP code intelligence and uv package management",
   "author": {
     "name": "Carlos Lezama",
