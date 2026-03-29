@@ -1,0 +1,73 @@
+name: Release - Create Tags
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.claude-plugin/marketplace.json'
+      - 'plugins/*/claude-plugin/plugin.json'
+
+jobs:
+  create-tags:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Detect version changes
+        id: detect
+        run: |
+          echo "🔍 Detecting version changes..."
+
+          plugins=("rdi" "python-dev")
+          tags_to_create=""
+
+          for plugin in "${plugins[@]}"; do
+            plugin_json="plugins/$plugin/.claude-plugin/plugin.json"
+
+            if [ -f "$plugin_json" ]; then
+              version=$(jq -r '.version' "$plugin_json")
+              tag="$plugin@$version"
+
+              # Check if tag already exists
+              if ! git rev-parse --verify "$tag" >/dev/null 2>&1; then
+                echo "📌 New version detected: $tag"
+                tags_to_create="$tags_to_create $tag"
+              else
+                echo "ℹ️  Tag already exists: $tag"
+              fi
+            fi
+          done
+
+          echo "tags_to_create=$tags_to_create" >> $GITHUB_OUTPUT
+
+      - name: Create and push tags
+        if: steps.detect.outputs.tags_to_create != ''
+        run: |
+          tags="${{ steps.detect.outputs.tags_to_create }}"
+
+          git config user.name "Claude Code Release Bot"
+          git config user.email "actions@claude.code"
+
+          for tag in $tags; do
+            echo "🏷️  Creating tag: $tag"
+            git tag "$tag"
+          done
+
+          git push origin --tags
+          echo "✅ Tags created and pushed"
+
+      - name: Summary
+        run: |
+          tags="${{ steps.detect.outputs.tags_to_create }}"
+
+          if [ -z "$tags" ]; then
+            echo "ℹ️  No new version changes detected"
+          else
+            echo "✅ Release tags created:"
+            for tag in $tags; do
+              echo "  - $tag"
+            done
+          fi
