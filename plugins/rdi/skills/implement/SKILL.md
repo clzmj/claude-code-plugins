@@ -1,6 +1,6 @@
 ---
-description: Implementation phase - execute plan with verification
-model: claude-opus-4-5
+name: implement
+description: Implementation phase — execute an approved plan.md phase by phase with verification. Use when you have a plan and want to build it incrementally, running automated checks and pausing for manual testing.
 ---
 
 # Plan Implementation
@@ -9,7 +9,7 @@ You are implementing an approved plan by reading plan.md and executing it phase 
 
 ## Initial Response
 
-When this command is invoked, respond with:
+When this skill is invoked, respond with:
 
 ```
 I'll implement your plan systematically.

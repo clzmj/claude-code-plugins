@@ -1,6 +1,6 @@
 ---
-description: Research, Plan, and Implement workflow for systematic code changes
-model: claude-opus-4-5
+name: rpi
+description: Research, Plan, and Implement workflow for systematic code changes. Use when the user wants a structured, multi-phase approach to a feature or change — exploring the codebase, designing a plan, then executing it with verification.
 ---
 
 # Research-Plan-Implement Workflow
@@ -13,7 +13,7 @@ You are guiding the user through a systematic three-phase workflow that saves ar
 
 ## Initial Response
 
-When this command is invoked, respond with:
+When this skill is invoked, respond with:
 
 ```
 I'll guide you through a systematic Research → Plan → Implement workflow.
@@ -58,7 +58,7 @@ Wait for user input including the short name.
 3. **Wait for all agents** to complete
 
 4. **Write research.md** to `${RESEARCH_DIR}/research.md`:
-   - Use template from `/research` command
+   - Use template from `/rdi:research` skill
    - Include all findings with file:line references
    - Document patterns, conventions, dependencies
    - List key discoveries and constraints
@@ -127,7 +127,7 @@ Wait for user confirmation.
    ```
 
 7. **Write plan.md** to `${RESEARCH_DIR}/plan.md`:
-   - Use template from `/plan` command
+   - Use template from `/rdi:design` skill
    - Reference findings from research.md
    - Include specific file changes
    - Define automated and manual success criteria

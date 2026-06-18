@@ -10,7 +10,7 @@ This plugin implements a methodical approach to code changes, ensuring thorough 
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│ /rpi (or use /research, /design, /implement separately)    │
+│ /rdi:rpi (or /rdi:research, /rdi:design, /rdi:implement)   │
 └─────────────────────────────────────────────────────────────┘
                             │
                             ▼
@@ -82,12 +82,12 @@ Add the marketplace and install the plugin:
 
 ## Usage
 
-### Basic Command
+### Basic Usage
 
 Invoke the workflow with:
 
 ```bash
-/rpi
+/rdi:rpi
 ```
 
 This will start the interactive Research-Design-Implement workflow.
@@ -104,7 +104,7 @@ The research phase thoroughly explores your codebase to understand:
 
 **Example:**
 ```
-User: /rpi
+User: /rdi:rpi
 Claude: I'll guide you through a systematic Research → Plan → Implement workflow...
         What would you like to work on?
 
@@ -247,13 +247,11 @@ When the plan doesn't match reality:
 - Multiple adaptation options presented
 - User decision on how to proceed
 
-## Command Reference
+## Skill Reference
 
-### `/rpi` - Complete Workflow
+### `/rdi:rpi` - Complete Workflow
 
 **Description:** Start the full Research-Plan-Implement workflow
-
-**Model:** Opus (for thorough analysis and planning)
 
 **Interactive:** Yes - guides you through all three phases with checkpoints
 
@@ -262,29 +260,23 @@ When the plan doesn't match reality:
 2. **Plan** - Create detailed implementation roadmap
 3. **Implement** - Execute plan with verification
 
-### `/research` - Research Only
+### `/rdi:research` - Research Only
 
 **Description:** Research and understand the codebase without planning or implementation
 
-**Model:** Opus
-
 **Use when:** You want to explore and document the current implementation before deciding on changes
 
-### `/design` - Planning Only
+### `/rdi:design` - Planning Only
 
 **Description:** Design a detailed implementation plan (with optional research)
 
-**Model:** Opus
-
 **Use when:** You understand the codebase and want to create an implementation roadmap
 
-**Note:** Named `/design` to avoid conflicts with Claude Code's native `/plan` command
+**Note:** Named `/rdi:design` to avoid conflicts with Claude Code's native `/plan` command
 
-### `/implement` - Implementation Only
+### `/rdi:implement` - Implementation Only
 
 **Description:** Execute an existing implementation plan with verification
-
-**Model:** Opus
 
 **Use when:** You have an approved plan and want to implement it systematically
 
@@ -329,14 +321,14 @@ Creates the research directory with epoch timestamp:
 - Input: Short name (e.g., "dark_mode_toggle")
 - Output: Directory path (e.g., ".claude/thoughts/1733595123_dark_mode_toggle")
 - Validates naming format (lowercase, underscores only)
-- Used automatically by `/research` and `/rpi` commands
+- Used automatically by the `/rdi:research` and `/rdi:rpi` skills
 
 ## Examples
 
 ### Example 1: Adding a New Feature
 
 ```bash
-/rpi
+/rdi:rpi
 ```
 
 ```
@@ -369,7 +361,7 @@ Claude: [RESEARCH PHASE]
 ### Example 2: Refactoring Existing Code
 
 ```bash
-/rpi
+/rdi:rpi
 ```
 
 ```
@@ -400,7 +392,7 @@ Claude: [RESEARCH PHASE]
 ### Example 3: Bug Fix with Investigation
 
 ```bash
-/rpi
+/rdi:rpi
 ```
 
 ```
@@ -467,17 +459,7 @@ Claude: [RESEARCH PHASE]
 
 ## Configuration
 
-The plugin uses Opus model by default for thorough analysis. You can customize in your `.claude/settings.json`:
-
-```json
-{
-  "commands": {
-    "rpi": {
-      "model": "opus"
-    }
-  }
-}
-```
+The skills are invoked automatically by Claude based on task context, or explicitly via their slash names (`/rdi:rpi`, `/rdi:research`, `/rdi:design`, `/rdi:implement`). No per-skill configuration is required.
 
 ## Troubleshooting
 

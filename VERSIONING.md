@@ -1,152 +1,75 @@
 # Versioning Strategy
 
-This marketplace uses **Semantic Versioning with manual releases**. Versions are determined exclusively by git tags, not by version numbers in code files.
+This marketplace uses **date-based versioning** (Stripe-style), not semantic versioning. A plugin's version **is its release date**.
 
-## Semantic Versioning
+> Inspired by Stripe's API versioning: <https://stripe.com/blog/api-versioning>. The `api-design` plugin in this repo teaches the same approach for APIs you build.
 
-Each plugin follows **Semantic Versioning 2.0.0**:
+## Format
 
 ```
-MAJOR.MINOR.PATCH
+YYYY-MM-DD          e.g. 2026-06-17
+YYYY-MM-DD.N        e.g. 2026-06-17.2   (second release on the same day)
 ```
 
-- **MAJOR** (e.g., 2.0.0): Breaking changes, removed features
-- **MINOR** (e.g., 1.1.0): New features, new agents/skills (backward compatible)
-- **PATCH** (e.g., 1.0.1): Bug fixes, documentation, configuration tweaks
+The version string is what Claude Code uses as the **update cache key** — when it changes, users receive the update. The optional `.N` suffix exists only so a same-day re-release still produces a new string.
+
+Tag format: `PLUGIN@YYYY-MM-DD` (e.g. `ruff-lsp@2026-06-17`), plus a floating `PLUGIN@latest` alias.
 
 ## Source of Truth: Git Tags
 
-The **canonical version is recorded in git tags**, not in code files. File versions are always synchronized via the release workflow.
-
-Tag format: `PLUGIN@vMAJOR.MINOR.PATCH`
-
-Examples:
-- `python-dev@v1.0.0` — canonical tag for python-dev version 1.0.0
-- `python-dev@v1.0` — floating alias (latest 1.0.x)
-- `python-dev@v1` — floating alias (latest 1.x.x)
-- `python-dev@latest` — floating alias (latest version overall)
+The canonical version is recorded in **git tags**. File versions in `plugin.json` and `marketplace.json` are synchronized by the release workflow.
 
 ## How to Release
 
-### 1. Go to GitHub Actions
-
-In your repository, navigate to: **Actions → Release Plugin**
-
-### 2. Click "Run workflow"
-
-Fill in the inputs:
-- **Plugin**: Choose `rdi` or `python-dev`
-- **Bump**: Choose `patch`, `minor`, or `major`
-
-### 3. The workflow automatically:
-
-1. Scans existing git tags for that plugin
-2. Computes the new version
-3. Updates `plugins/PLUGIN/.claude-plugin/plugin.json`
-4. Updates `.claude-plugin/marketplace.json`
-5. Creates a commit with message: `chore: release PLUGIN vX.Y.Z`
-6. Pushes the commit to main
-7. Creates the canonical tag (e.g., `python-dev@v1.0.1`)
-8. Creates and force-pushes alias tags
-
-### Done!
-
-The release is complete. Users can install the new version immediately.
+1. **Actions → Release Plugin → Run workflow**
+2. Inputs:
+   - **Plugin**: the plugin's directory name under `plugins/` (e.g. `ruff-lsp`). The release script validates it against the plugins on disk, so there's no list to keep in sync.
+   - **Date** *(optional)*: `YYYY-MM-DD`; leave blank to use today (UTC on the runner)
+3. The workflow:
+   1. Computes the version = the release date (adding `.N` if that date is already tagged for this plugin)
+   2. Updates `plugins/PLUGIN/.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json`
+   3. Commits `chore: release PLUGIN YYYY-MM-DD` and pushes to main
+   4. Creates the canonical tag `PLUGIN@YYYY-MM-DD` and force-updates `PLUGIN@latest`
 
 ## Current Versions
 
-Query existing versions via git tags:
-
 ```bash
-# List all tags
-git tag -l
-
-# List tags for specific plugin
-git tag -l "python-dev@*"
-git tag -l "rdi@*"
-
-# Show latest version
-git describe --tags --abbrev=0 --match "python-dev@*"
+git tag -l                        # all tags
+git tag -l "ruff-lsp@*"           # tags for one plugin
+git describe --tags --abbrev=0 --match "ruff-lsp@*"   # latest for a plugin
 ```
 
-Current:
-- `rdi@v1.0.0`
-- `python-dev@v1.0.0`
+All plugins are currently at `2026-06-17` (initial date-versioned release; tags are created on first run of the release workflow).
+
+> **History note:** `rdi` previously used semver tags (`rdi@v1.0.x`). Those tags remain in git history but are superseded by date versions. New releases use the `PLUGIN@YYYY-MM-DD` scheme.
 
 ## Examples
 
-### Example 1: Bug Fix (PATCH)
+### Backwards-compatible change (docs, bug fix, new optional behavior)
+1. Make the change in `plugins/PLUGIN/...`
+2. Commit and push
+3. Release Plugin → Plugin = `PLUGIN`, Date = blank (today)
+4. ✅ Version becomes today's date.
 
-**Scenario**: Found a typo in ruff.toml
+### Two releases in one day
+1. Release once → `2026-06-17`
+2. Later that day, release again → workflow computes `2026-06-17.2` automatically.
 
-**Steps**:
-1. Fix the typo in `plugins/python-dev/ruff.toml`
-2. Commit and push: `git commit -m "fix: ruff rule typo" && git push`
-3. Go to GitHub Actions → Release Plugin
-4. Select: Plugin = `python-dev`, Bump = `patch`
-5. Click "Run workflow"
-6. ✅ Done! Version is now `1.0.1` with tags `python-dev@v1.0.1`, `python-dev@v1.0`, `python-dev@latest`, etc.
-
-### Example 2: New Feature (MINOR)
-
-**Scenario**: Added new agent to python-dev
-
-**Steps**:
-1. Add agent file `plugins/python-dev/agents/new-agent.md`
-2. Commit and push: `git commit -m "feat: add new-agent" && git push`
-3. Go to GitHub Actions → Release Plugin
-4. Select: Plugin = `python-dev`, Bump = `minor`
-5. Click "Run workflow"
-6. ✅ Done! Version is now `1.1.0`
-
-### Example 3: Breaking Change (MAJOR)
-
-**Scenario**: Restructured agent interface
-
-**Steps**:
-1. Restructure `plugins/rdi/agents/*`
-2. Update agent format documentation
-3. Commit and push
-4. Go to GitHub Actions → Release Plugin
-5. Select: Plugin = `rdi`, Bump = `major`
-6. Click "Run workflow"
-7. ✅ Done! Version is now `2.0.0` (breaking change)
+### Backdated / coordinated release
+1. Release Plugin → Plugin = `PLUGIN`, Date = `2026-06-20`
+2. ✅ Version and tag use the supplied date.
 
 ## FAQ
 
-### Q: Do I need to manually update version numbers in code?
+**Do I manually edit version numbers?** No — the release workflow writes them. (For quick local iteration you can leave `version` unset to fall back to commit-SHA versioning, but published plugins here pin a date.)
 
-**A**: No. Never manually change versions in `plugin.json` or `marketplace.json`. The release workflow handles this automatically.
+**Why dates instead of semver?** Releases here are snapshots, not API contracts with consumers who need semver ranges. Dates make "when did this ship" obvious and match the API-design philosophy this marketplace promotes. Breaking-change semantics for *APIs you build* are handled by the `api-design` plugin, not by the plugin's own release version.
 
-### Q: What if I committed code but didn't want to release yet?
-
-**A**: That's fine! Commits to main don't automatically release. Only trigger the release workflow when you're ready to bump the version and create a tag.
-
-### Q: Can I release multiple plugins at once?
-
-**A**: No, release one plugin at a time via the release workflow. Each plugin has independent versioning.
-
-### Q: What if the version computation is wrong?
-
-**A**: The workflow scans all existing tags matching `PLUGIN@v*.*.*` and bumps the highest one. If something goes wrong, delete the incorrect tag with `git push origin --delete PLUGIN@vX.Y.Z` and re-run the workflow.
-
-### Q: How do I revert a release?
-
-**A**: 1. Delete the bad tag: `git push origin --delete PLUGIN@vX.Y.Z`
-2. Optionally delete alias tags too
-3. Reset the version files to the previous version
-4. Commit the reset
-5. Re-run release workflow if needed
-
-## Glossary
-
-- **Canonical tag**: The precise version tag (e.g., `python-dev@v1.0.1`)
-- **Alias tag**: Floating pointer that moves with each release (e.g., `python-dev@latest`)
-- **Semver**: Semantic Versioning (X.Y.Z format)
-- **Self-hosted runner**: GitHub Actions runner on your infrastructure
+**How do I revert a release?** Delete the tag (`git push origin --delete PLUGIN@YYYY-MM-DD`), reset the `version` fields, commit, and re-run if needed.
 
 ## See Also
 
-- `.github/workflows/release.yml` — The release workflow
-- `.github/workflows/version-validation.yml` — Consistency validation
-- `scripts/compute_plugin_version.py` — Version computation script
+- `.github/workflows/release.yml` — release workflow
+- `.github/workflows/version-validation.yml` — version consistency + date-format check
+- `scripts/compute_plugin_version.py` — date version computation
+- `plugins/api-design/` — Stripe-style date versioning for APIs you design

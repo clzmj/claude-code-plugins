@@ -1,0 +1,22 @@
+{
+  "name": "api-design",
+  "version": "2026-06-17",
+  "description": "Design and evolve APIs with Stripe-style date-based versioning and strict backwards-compatibility rules — additive by default, breaking changes pinned to a new dated version with backward transforms",
+  "author": {
+    "name": "Carlos Lezama",
+    "email": "carlos@carrots.sh"
+  },
+  "license": "Apache-2.0",
+  "repository": "https://github.com/clzmj/claude-code-plugins",
+  "keywords": [
+    "api",
+    "api-design",
+    "versioning",
+    "backwards-compatibility",
+    "rest",
+    "stripe"
+  ],
+  "skills": [
+    "./skills/api-design"
+  ]
+}

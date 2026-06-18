@@ -1,23 +1,38 @@
 #!/usr/bin/env python3
-"""Compute the next semantic version for a plugin based on existing git tags."""
+"""Compute the next date-based version for a plugin (Stripe-style date versioning).
+
+A plugin's version IS its release date (``YYYY-MM-DD``). If the plugin is already
+released on the same day, a ``.N`` counter is appended so the version string still
+changes (Claude Code uses the version string as the update cache key).
+"""
 
 from __future__ import annotations
 
 import argparse
 import re
-import subprocess
+from datetime import date, datetime
 from pathlib import Path
+import subprocess
 
 ROOT = Path(__file__).resolve().parents[1]
 
-# Match tags like: python-dev@v1.0.0
-TAG_PATTERN = re.compile(r"^([a-z-]+)@v(\d+)\.(\d+)\.(\d+)$")
+# Match tags like: ruff-lsp@2026-06-17  or  ruff-lsp@2026-06-17.2
+TAG_PATTERN = re.compile(r"^([a-z-]+)@(\d{4}-\d{2}-\d{2})(?:\.(\d+))?$")
+DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+
+
+def discover_plugins() -> list[str]:
+    """Every plugin directory under plugins/ with a manifest — no hardcoded list."""
+    return sorted(p.parent.parent.name for p in ROOT.glob("plugins/*/.claude-plugin/plugin.json"))
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Compute next semantic version for a plugin")
-    parser.add_argument("--plugin", required=True, choices=["rdi", "python-dev"], help="Plugin name")
-    parser.add_argument("--bump", required=True, choices=["patch", "minor", "major"], help="Version bump type")
+    parser = argparse.ArgumentParser(description="Compute next date-based version for a plugin")
+    parser.add_argument("--plugin", required=True, help="Plugin name (directory under plugins/)")
+    parser.add_argument(
+        "--date",
+        help="Release date YYYY-MM-DD (default: today, UTC on CI runners)",
+    )
     parser.add_argument("--github-output", help="Path to GitHub Actions output file")
     return parser.parse_args()
 
@@ -28,72 +43,52 @@ def list_tags() -> list[str]:
     return [line.strip() for line in output.splitlines() if line.strip()]
 
 
-def latest_version_for_plugin(plugin: str, tags: list[str]) -> tuple[int, int, int]:
-    """Find the highest semantic version for a given plugin."""
-    versions: list[tuple[int, int, int]] = []
+def next_version(plugin: str, day: str, tags: list[str]) -> str:
+    """Return the version string for ``day``, adding ``.N`` if that date is taken."""
+    counters: list[int] = []
     for tag in tags:
         match = TAG_PATTERN.match(tag)
-        if match:
-            tag_plugin, major, minor, patch = match.groups()
-            if tag_plugin == plugin:
-                versions.append((int(major), int(minor), int(patch)))
-    if not versions:
-        # Default to v0.0.0 if no versions exist
-        return (0, 0, 0)
-    return max(versions)
+        if match and match.group(1) == plugin and match.group(2) == day:
+            counters.append(int(match.group(3) or 0))
+    if not counters:
+        return day
+    return f"{day}.{max(counters) + 1}"
 
 
-def bump_version(version: tuple[int, int, int], bump: str) -> tuple[int, int, int]:
-    """Bump the version according to semver rules."""
-    major, minor, patch = version
-    if bump == "major":
-        return (major + 1, 0, 0)
-    if bump == "minor":
-        return (major, minor + 1, 0)
-    # patch
-    return (major, minor, patch + 1)
-
-
-def render_tags(plugin: str, version: tuple[int, int, int]) -> tuple[str, list[str]]:
-    """Render canonical tag and alias tags for a version."""
-    major, minor, patch = version
-    canonical = f"{plugin}@v{major}.{minor}.{patch}"
-    aliases = [
-        f"{plugin}@v{major}.{minor}",
-        f"{plugin}@v{major}",
-        f"{plugin}@latest",
-    ]
+def render_tags(plugin: str, version: str) -> tuple[str, list[str]]:
+    """Render canonical tag and the single floating alias for a date version."""
+    canonical = f"{plugin}@{version}"
+    aliases = [f"{plugin}@latest"]
     return canonical, aliases
-
-
-def render_semver(version: tuple[int, int, int]) -> str:
-    """Render version as semver string without 'v' prefix."""
-    major, minor, patch = version
-    return f"{major}.{minor}.{patch}"
 
 
 def main() -> None:
     args = parse_args()
 
-    # Get all tags and compute next version
-    tags = list_tags()
-    current_version = latest_version_for_plugin(args.plugin, tags)
-    next_version = bump_version(current_version, args.bump)
-    canonical_tag, alias_tags = render_tags(args.plugin, next_version)
-    new_semver = render_semver(next_version)
+    known = discover_plugins()
+    if args.plugin not in known:
+        raise SystemExit(f"unknown plugin '{args.plugin}'. Known plugins: {', '.join(known)}")
 
-    # Output for GitHub Actions
+    day = args.date or date.today().isoformat()
+    if not DATE_RE.match(day):
+        raise SystemExit(f"--date must be YYYY-MM-DD, got: {day}")
+    try:
+        datetime.strptime(day, "%Y-%m-%d")  # reject impossible dates (e.g. 2026-13-40)
+    except ValueError as exc:
+        raise SystemExit(f"--date is not a real date: {day} ({exc})")
+
+    tags = list_tags()
+    version = next_version(args.plugin, day, tags)
+    canonical_tag, alias_tags = render_tags(args.plugin, version)
+
     if args.github_output:
-        output_path = Path(args.github_output)
-        with output_path.open("a") as fh:
+        with Path(args.github_output).open("a") as fh:
             fh.write(f"canonical_tag={canonical_tag}\n")
             fh.write(f"alias_tags={','.join(alias_tags)}\n")
-            fh.write(f"new_version={new_semver}\n")
+            fh.write(f"new_version={version}\n")
 
-    # Print for user visibility
     print(f"Plugin: {args.plugin}")
-    print(f"Current version: {render_semver(current_version)}")
-    print(f"New version: {new_semver}")
+    print(f"New version: {version}")
     print(f"Canonical tag: {canonical_tag}")
     print(f"Alias tags: {', '.join(alias_tags)}")
 

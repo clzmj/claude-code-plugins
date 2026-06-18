@@ -1,0 +1,27 @@
+{
+  "name": "uv",
+  "version": "2026-06-17",
+  "description": "Modern Python package and project management with uv — initialization, dependencies, virtual environments, Python versions, lockfiles, monorepos, CI/CD, and migration from legacy tools",
+  "author": {
+    "name": "Carlos Lezama",
+    "email": "carlos@carrots.sh"
+  },
+  "license": "Apache-2.0",
+  "repository": "https://github.com/clzmj/claude-code-plugins",
+  "keywords": [
+    "python",
+    "uv",
+    "package-management",
+    "dependencies",
+    "virtualenv",
+    "migration"
+  ],
+  "agents": [
+    "./agents/uv-project-analyzer.md",
+    "./agents/uv-migration-planner.md",
+    "./agents/python-dep-resolver.md"
+  ],
+  "skills": [
+    "./skills/uv"
+  ]
+}

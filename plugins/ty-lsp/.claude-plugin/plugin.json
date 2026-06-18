@@ -1,0 +1,30 @@
+{
+  "name": "ty-lsp",
+  "version": "2026-06-17",
+  "description": "ty language server for Python — fast type checking and type-aware navigation (go to definition, hover, references) via the ty LSP",
+  "author": {
+    "name": "Carlos Lezama",
+    "email": "carlos@carrots.sh"
+  },
+  "license": "Apache-2.0",
+  "repository": "https://github.com/clzmj/claude-code-plugins",
+  "keywords": [
+    "python",
+    "lsp",
+    "ty",
+    "type-checking"
+  ],
+  "skills": [
+    "./skills/ty-lsp"
+  ],
+  "lspServers": {
+    "ty": {
+      "command": "uvx",
+      "args": ["ty", "server"],
+      "extensionToLanguage": {
+        ".py": "python",
+        ".pyi": "python"
+      }
+    }
+  }
+}

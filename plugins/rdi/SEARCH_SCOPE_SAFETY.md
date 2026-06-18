@@ -132,7 +132,7 @@ $CLAUDE_PLUGIN_ROOT/hooks/check_codebase.sh
 
 ## Files Modified
 
-1. `commands/research.md` - Added codebase detection and mode selection
+1. `skills/research/SKILL.md` - Added codebase detection and mode selection
 2. `agents/codebase-locator.md` - Added search scope restrictions
 3. `agents/codebase-pattern-finder.md` - Added search scope restrictions
 4. `agents/codebase-analyzer.md` - Added search scope restrictions

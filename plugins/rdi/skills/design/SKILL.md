@@ -1,6 +1,6 @@
 ---
-description: Design detailed implementation plan from research findings
-model: claude-opus-4-5
+name: design
+description: Design a detailed implementation plan from research findings. Use when you have research (or a clear task) and need a phased, verifiable plan.md with success criteria before writing code.
 ---
 
 # Design Implementation Plan
@@ -9,7 +9,7 @@ You are creating a detailed implementation plan based on research findings. The 
 
 ## Initial Response
 
-When this command is invoked, respond with:
+When this skill is invoked, respond with:
 
 ```
 I'll create a detailed implementation plan.
@@ -316,7 +316,7 @@ describe('[Feature]', () => {
 [None - all questions must be resolved before plan is finalized]
 **If any questions remain, STOP and ask the user before completing the plan.**
 ## Implementation Checklist
-Before starting implementation with `/implement`:
+Before starting implementation with `/rdi:implement`:
 - [ ] All phases clearly defined
 - [ ] All file changes specified
 - [ ] All success criteria measurable
@@ -341,7 +341,7 @@ I've created the detailed plan in:
 2. [Phase 2 name] - [Brief description]
 3. [Phase 3 name] - [Brief description]
 Please review the plan. Once approved, use:
-/implement [research_dir]/plan.md
+/rdi:implement [research_dir]/plan.md
 Would you like me to explain any part of the plan in more detail?
 ```
 ### Step 7: Iterate if Needed
@@ -379,5 +379,5 @@ If user requests changes:
 - Use TodoWrite for planning tasks
 - Mark completed when plan is approved
 - Keep user informed
-The plan.md will be consumed by `/implement` to execute the implementation phase by phase.
-Note: This command is named `/design` to avoid conflicts with Claude Code's native `/plan` command.
+The plan.md will be consumed by `/rdi:implement` to execute the implementation phase by phase.
+Note: This skill is named `/rdi:design` to avoid conflicts with Claude Code's native `/plan` command.

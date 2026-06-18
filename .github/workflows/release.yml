@@ -4,20 +4,13 @@ on:
   workflow_dispatch:
     inputs:
       plugin:
-        description: Plugin to release
+        description: Plugin to release (directory name under plugins/, e.g. ruff-lsp)
         required: true
-        type: choice
-        options:
-          - rdi
-          - python-dev
-      bump:
-        description: Version bump type
-        required: true
-        type: choice
-        options:
-          - patch
-          - minor
-          - major
+        type: string
+      date:
+        description: Release date YYYY-MM-DD (optional, defaults to today)
+        required: false
+        type: string
 
 permissions:
   contents: write
@@ -45,10 +38,11 @@ jobs:
       - name: Compute release version
         id: version
         run: |
-          python3 scripts/compute_plugin_version.py \
-            --plugin "${{ inputs.plugin }}" \
-            --bump "${{ inputs.bump }}" \
-            --github-output "$GITHUB_OUTPUT"
+          args=(--plugin "${{ inputs.plugin }}" --github-output "$GITHUB_OUTPUT")
+          if [ -n "${{ inputs.date }}" ]; then
+            args+=(--date "${{ inputs.date }}")
+          fi
+          python3 scripts/compute_plugin_version.py "${args[@]}"
 
       - name: Update plugin.json
         run: |
@@ -83,7 +77,7 @@ jobs:
         run: |
           git add plugins/${{ inputs.plugin }}/.claude-plugin/plugin.json
           git add .claude-plugin/marketplace.json
-          git commit -m "chore: release ${{ inputs.plugin }} v${{ steps.version.outputs.new_version }}"
+          git commit -m "chore: release ${{ inputs.plugin }} ${{ steps.version.outputs.new_version }}"
 
       - name: Push commit
         run: git push origin main
@@ -106,7 +100,7 @@ jobs:
           echo "✅ Release complete!"
           echo ""
           echo "Plugin: ${{ inputs.plugin }}"
-          echo "Version: v${{ steps.version.outputs.new_version }}"
+          echo "Version: ${{ steps.version.outputs.new_version }}"
           echo ""
           echo "📌 Tags created:"
           echo "  Canonical: ${{ steps.version.outputs.canonical_tag }}"

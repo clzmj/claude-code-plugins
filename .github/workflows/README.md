@@ -52,26 +52,25 @@ Automatically:
 Test workflows locally:
 
 ```bash
-# Validate version consistency
-plugins=("rdi" "python-dev")
-for plugin in "${plugins[@]}"; do
-  plugin_version=$(jq '.version' plugins/$plugin/.claude-plugin/plugin.json)
-  marketplace_version=$(jq ".plugins[] | select(.name==\"$plugin\") | .version" .claude-plugin/marketplace.json)
+# Validate every plugin on disk — no hardcoded list
+shopt -s nullglob
+for plugin_json in plugins/*/.claude-plugin/plugin.json; do
+  plugin=$(jq -r '.name' "$plugin_json")
+  version=$(jq -r '.version' "$plugin_json")
+  marketplace_version=$(jq -r ".plugins[] | select(.name==\"$plugin\") | .version" .claude-plugin/marketplace.json)
 
-  if [ "$plugin_version" != "$marketplace_version" ]; then
-    echo "❌ Version mismatch: $plugin"
+  # consistency
+  if [ "$version" != "$marketplace_version" ]; then
+    echo "❌ Version mismatch: $plugin ($version vs $marketplace_version)"
   else
     echo "✓ $plugin versions match"
   fi
-done
 
-# Validate semver format
-for plugin in rdi python-dev; do
-  version=$(jq -r '.version' plugins/$plugin/.claude-plugin/plugin.json)
-  if [[ $version =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-    echo "✓ $plugin semver valid: $version"
+  # date-version format (YYYY-MM-DD, optional .N same-day suffix)
+  if [[ $version =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}(\.[0-9]+)?$ ]]; then
+    echo "✓ $plugin date version valid: $version"
   else
-    echo "❌ $plugin invalid semver: $version"
+    echo "❌ $plugin invalid date version: $version"
   fi
 done
 ```

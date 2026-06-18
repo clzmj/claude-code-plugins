@@ -1,6 +1,6 @@
 ---
-description: Research phase - explore and understand the codebase
-model: claude-opus-4-5
+name: research
+description: Research phase — explore and understand a codebase before making changes. Use when you need to map how something currently works, find relevant files, and document patterns and constraints into a research.md artifact.
 ---
 
 # Codebase Research
@@ -9,7 +9,7 @@ You are conducting comprehensive research across the codebase to understand the 
 
 ## Initial Response
 
-When this command is invoked, respond with:
+When this skill is invoked, respond with:
 
 ```
 I'll research your codebase to understand the current implementation.
@@ -314,4 +314,4 @@ Use: /rdi:design .claude/thoughts/[epoch]_[short_name]/research.md
 4. **Pass explicit instructions to agents** about search scope
 5. **Use WebSearch as fallback** when no local codebase exists
 
-The research.md file will be consumed by the `/rdi:design` command to create an implementation plan.
+The research.md file will be consumed by the `/rdi:design` skill to create an implementation plan.

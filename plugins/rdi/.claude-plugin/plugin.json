@@ -1,6 +1,6 @@
 {
   "name": "rdi",
-  "version": "1.0.1",
+  "version": "2026-06-17",
   "description": "A systematic workflow plugin that guides Claude through research, design, and implementation phases for code changes",
   "author": {
     "name": "Carlos Lezama",
@@ -8,11 +8,11 @@
   },
   "license": "Apache-2.0",
   "repository": "https://github.com/clzmj/claude-code-plugins",
-  "commands": [
-    "./commands/rpi.md",
-    "./commands/research.md",
-    "./commands/design.md",
-    "./commands/implement.md"
+  "skills": [
+    "./skills/rpi",
+    "./skills/research",
+    "./skills/design",
+    "./skills/implement"
   ],
   "agents": [
     "./agents/codebase-locator.md",

@@ -7,14 +7,14 @@
   },
   "metadata": {
     "description": "Claude Code plugins for systematic development workflows",
-    "version": "1.0.0"
+    "version": "2026-06-17"
   },
   "plugins": [
     {
       "name": "rdi",
       "source": "./plugins/rdi",
       "description": "A systematic workflow plugin that guides Claude through research, design, and implementation phases for code changes. Ensures thorough understanding, careful planning, and verified implementation of complex features.",
-      "version": "1.0.1",
+      "version": "2026-06-17",
       "author": {
         "name": "Carlos Lezama",
         "email": "carlos@carrots.sh"
@@ -35,10 +35,10 @@
       "category": "productivity"
     },
     {
-      "name": "python-dev",
-      "source": "./plugins/python-dev",
-      "description": "Complete Python development environment with LSP code intelligence (ruff, ty, pyright, pylance) and uv package management. Includes project analysis, migration planning, dependency resolution agents, and comprehensive documentation.",
-      "version": "1.0.1",
+      "name": "ruff-lsp",
+      "source": "./plugins/ruff-lsp",
+      "description": "Ruff language server for Python — fast linting and formatting diagnostics via the ruff LSP, with a bundled ruff.toml configuration.",
+      "version": "2026-06-17",
       "author": {
         "name": "Carlos Lezama",
         "email": "carlos@carrots.sh"
@@ -47,17 +47,86 @@
       "keywords": [
         "python",
         "lsp",
-        "uv",
-        "package-management",
-        "type-checking",
+        "ruff",
         "linting",
-        "development"
+        "formatting"
       ],
       "tags": [
         "development",
         "python",
+        "lsp"
+      ],
+      "category": "development"
+    },
+    {
+      "name": "ty-lsp",
+      "source": "./plugins/ty-lsp",
+      "description": "ty language server for Python — fast type checking and type-aware navigation (go to definition, hover, references) via the ty LSP.",
+      "version": "2026-06-17",
+      "author": {
+        "name": "Carlos Lezama",
+        "email": "carlos@carrots.sh"
+      },
+      "license": "Apache-2.0",
+      "keywords": [
+        "python",
         "lsp",
+        "ty",
+        "type-checking"
+      ],
+      "tags": [
+        "development",
+        "python",
+        "lsp"
+      ],
+      "category": "development"
+    },
+    {
+      "name": "uv",
+      "source": "./plugins/uv",
+      "description": "Modern Python package and project management with uv — initialization, dependencies, virtual environments, Python versions, lockfiles, monorepos, CI/CD, and migration from legacy tools.",
+      "version": "2026-06-17",
+      "author": {
+        "name": "Carlos Lezama",
+        "email": "carlos@carrots.sh"
+      },
+      "license": "Apache-2.0",
+      "keywords": [
+        "python",
+        "uv",
+        "package-management",
+        "dependencies",
+        "virtualenv",
+        "migration"
+      ],
+      "tags": [
+        "development",
+        "python",
         "package-management"
+      ],
+      "category": "development"
+    },
+    {
+      "name": "api-design",
+      "source": "./plugins/api-design",
+      "description": "Design and evolve APIs with Stripe-style date-based versioning and strict backwards-compatibility rules — additive by default, breaking changes pinned to a new dated version with backward transforms.",
+      "version": "2026-06-17",
+      "author": {
+        "name": "Carlos Lezama",
+        "email": "carlos@carrots.sh"
+      },
+      "license": "Apache-2.0",
+      "keywords": [
+        "api",
+        "api-design",
+        "versioning",
+        "backwards-compatibility",
+        "rest",
+        "stripe"
+      ],
+      "tags": [
+        "development",
+        "api"
       ],
       "category": "development"
     }

@@ -1,0 +1,31 @@
+{
+  "name": "ruff-lsp",
+  "version": "2026-06-17",
+  "description": "Ruff language server for Python — fast linting and formatting diagnostics via the ruff LSP, with a bundled ruff.toml configuration",
+  "author": {
+    "name": "Carlos Lezama",
+    "email": "carlos@carrots.sh"
+  },
+  "license": "Apache-2.0",
+  "repository": "https://github.com/clzmj/claude-code-plugins",
+  "keywords": [
+    "python",
+    "lsp",
+    "ruff",
+    "linting",
+    "formatting"
+  ],
+  "skills": [
+    "./skills/ruff-lsp"
+  ],
+  "lspServers": {
+    "ruff": {
+      "command": "uvx",
+      "args": ["ruff", "server", "--config", "${CLAUDE_PLUGIN_ROOT}/ruff.toml"],
+      "extensionToLanguage": {
+        ".py": "python",
+        ".pyi": "python"
+      }
+    }
+  }
+}
