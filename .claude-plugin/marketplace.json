@@ -129,6 +129,31 @@
         "api"
       ],
       "category": "development"
+    },
+    {
+      "name": "chezmoi",
+      "source": "./plugins/chezmoi",
+      "description": "Manage dotfiles across machines with chezmoi — daily workflow, templating, prompt-on-init, age/gpg encryption, password managers, and multi-repo public/private architectures where private content is always pushed encrypted with the key kept elsewhere.",
+      "version": "2026-06-20",
+      "author": {
+        "name": "Carlos Lezama",
+        "email": "carlos@carrots.sh"
+      },
+      "license": "Apache-2.0",
+      "keywords": [
+        "chezmoi",
+        "dotfiles",
+        "encryption",
+        "age",
+        "templating",
+        "secrets",
+        "multi-repo"
+      ],
+      "tags": [
+        "dotfiles",
+        "configuration"
+      ],
+      "category": "productivity"
     }
   ]
 }
