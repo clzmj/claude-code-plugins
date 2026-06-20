@@ -1,0 +1,116 @@
+name: Auto Release
+
+# Releases automatically: when a plugin's files land on main, the plugin is
+# version-stamped (today's date), tagged, and pushed — no manual dispatch.
+# Manual/backdated releases still live in release.yml.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'plugins/**'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: auto-release
+  cancel-in-progress: false
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  auto-release:
+    name: Auto-release changed plugins
+    runs-on: self-hosted
+    # Skip the run triggered by our own release commits (belt to [skip ci]'s braces).
+    if: "${{ !startsWith(github.event.head_commit.message, 'chore: release') }}"
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Configure git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Fetch tags
+        run: git fetch --force --tags origin
+
+      - name: Detect changed plugins
+        id: detect
+        run: |
+          base='${{ github.event.before }}'
+          head='${{ github.event.after }}'
+          if ! git cat-file -e "${base}^{commit}" 2>/dev/null; then
+            base="${head}^"   # new branch / shallow: fall back to the parent
+          fi
+          changed=$(git diff --name-only "$base" "$head" -- plugins \
+                      | awk -F/ 'NF>1 {print $2}' | sort -u)
+          out=""
+          for p in $changed; do
+            # only release plugins that still have a manifest on disk
+            [ -f "plugins/$p/.claude-plugin/plugin.json" ] && out="$out $p"
+          done
+          out=$(echo "$out" | xargs)   # trim and collapse whitespace
+          echo "plugins=$out" >> "$GITHUB_OUTPUT"
+          echo "Changed plugins: '${out:-<none>}'"
+
+      - name: Release changed plugins
+        if: steps.detect.outputs.plugins != ''
+        run: |
+          set -euo pipefail
+          canonical_tags=""
+          alias_tags_all=""
+
+          for plugin in ${{ steps.detect.outputs.plugins }}; do
+            echo "::group::Releasing $plugin"
+            tmp=$(mktemp)
+            python3 scripts/compute_plugin_version.py --plugin "$plugin" --github-output "$tmp"
+            new_version=$(grep '^new_version='   "$tmp" | cut -d= -f2-)
+            canonical_tag=$(grep '^canonical_tag=' "$tmp" | cut -d= -f2-)
+            alias_tags=$(grep '^alias_tags='     "$tmp" | cut -d= -f2-)
+
+            PLUGIN="$plugin" VERSION="$new_version" python3 - <<'PYTHON'
+          import json, os
+          from pathlib import Path
+
+          plugin = os.environ["PLUGIN"]
+          version = os.environ["VERSION"]
+
+          pj = Path(f"plugins/{plugin}/.claude-plugin/plugin.json")
+          data = json.loads(pj.read_text())
+          data["version"] = version
+          pj.write_text(json.dumps(data, indent=2) + "\n")
+
+          mp = Path(".claude-plugin/marketplace.json")
+          m = json.loads(mp.read_text())
+          for p in m.get("plugins", []):
+              if p["name"] == plugin:
+                  p["version"] = version
+                  break
+          mp.write_text(json.dumps(m, indent=2) + "\n")
+          PYTHON
+
+            git add "plugins/$plugin/.claude-plugin/plugin.json" .claude-plugin/marketplace.json
+            # [skip ci] stops this push from re-triggering Auto Release
+            git commit -m "chore: release $plugin $new_version [skip ci]"
+            git tag -a "$canonical_tag" -m "release: $canonical_tag"
+            for tag in $(echo "$alias_tags" | tr ',' ' '); do
+              git tag -fa "$tag" -m "release alias: $tag"
+              alias_tags_all="$alias_tags_all $tag"
+            done
+            canonical_tags="$canonical_tags $canonical_tag"
+            echo "✅ $plugin → $new_version"
+            echo "::endgroup::"
+          done
+
+          git push origin main
+          for t in $canonical_tags; do git push origin "refs/tags/$t"; done
+          for t in $alias_tags_all; do git push origin "refs/tags/$t" --force; done
+
+      - name: Nothing to release
+        if: steps.detect.outputs.plugins == ''
+        run: echo "No plugin content changed in this push — nothing to release."

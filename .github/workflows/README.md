@@ -12,22 +12,34 @@ Runs on:
 
 Checks:
 - ✅ Version consistency (plugin.json ↔ marketplace.json)
-- ✅ Semver format validation (X.Y.Z)
-- ✅ Version bump enforcement (if code changed, version must be bumped)
-- ✅ Git tag validation
+- ✅ Date-version format validation (`YYYY-MM-DD`, optional `.N` same-day suffix)
 
 **Self-hosted runner**: Yes - runs on your configured runner
 
-### `release-tags.yml`
+### `auto-release.yml` — automatic, no clicking
 
 Runs on:
-- Push to main with version changes
+- Push to `main` that touches `plugins/**`
 
-Automatically:
-- 🏷️ Creates git tags for new plugin versions
-- 📤 Pushes tags to repository
+Automatically, for **each plugin whose files changed** in the push:
+- 🔢 Computes the date version (today, `.N` if already released today)
+- ✍️ Stamps `plugin.json` + `marketplace.json`
+- 🏷️ Creates the canonical tag `PLUGIN@YYYY-MM-DD` and moves `PLUGIN@latest`
+- 📤 Commits `chore: release PLUGIN VERSION [skip ci]` and pushes main + tags
 
-**Self-hosted runner**: Yes - runs on your configured runner
+The `[skip ci]` marker (and a job-level `if` guard on `chore: release`) stops the
+release commit from re-triggering itself. So the normal flow is just: **merge a
+plugin change to main → it releases itself.** No `workflow_dispatch`, no clicking.
+
+**Self-hosted runner**: Yes
+
+### `release.yml` — manual / backdated (fallback)
+
+Runs on: `workflow_dispatch` only. Use it when you need a **specific date**
+(backdated or coordinated release) instead of today, or to re-release a plugin
+whose files didn't change. Same version/tag logic as auto-release.
+
+**Self-hosted runner**: Yes
 
 ## Enabling on Self-Hosted Runner
 
